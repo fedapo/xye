@@ -141,10 +141,10 @@ bool IsSLC(const char* path)
     return ((L>=4) && (strcmp(path+L-4,".slc") ==0 ));
 }
 
-int SLC_CountValidLevels(TiXmlElement* levels)
+int SLC_CountValidLevels(tinyxml2::XMLElement* levels)
 {
     int n=0;
-    TiXmlElement* el = levels->FirstChildElement("Level");
+    tinyxml2::XMLElement* el = levels->FirstChildElement("Level");
     while (el != NULL)
     {
         int w = -1, h = -1;
@@ -172,11 +172,11 @@ string GetSokobanLevelName(const char* filename, int ln)
 
 void XsbLevelPack::LoadSLC(const char* filename, unsigned int ln)
 {
-    TiXmlDocument  fil(filename);
-    TiXmlElement* pack, *el;
+    tinyxml2::XMLDocument  fil(true, tinyxml2::PRESERVE_WHITESPACE);
+    tinyxml2::XMLElement* pack, *el;
     tn=0;
-    fil.SetCondenseWhiteSpace(false);
-    if (fil.LoadFile())
+    //fil.SetCondenseWhiteSpace(false);
+    if (fil.LoadFile(filename) == tinyxml2::XML_SUCCESS)
     {
         pack=fil.FirstChildElement("SokobanLevels");
         if (pack!=NULL)
@@ -215,7 +215,7 @@ void XsbLevelPack::LoadSLC(const char* filename, unsigned int ln)
                     Final = cur;
                 }
                 cur->w = w, cur->h = h;
-                TiXmlElement* line;
+                tinyxml2::XMLElement* line;
                 int linenum = 0;
                 for(int i=0; i<XYE_HORZ; i++)
                     for(int j=0; j<XYE_VERT; j++)
@@ -256,13 +256,13 @@ void XsbLevelPack::LoadSLC(const char* filename, unsigned int ln)
 
 const char* XsbLevelPack::ReadDataSLC(const char* path,unsigned int &n, string&author, string &description, string&title)
 {
-    TiXmlDocument  fil(path);
-    TiXmlElement* pack, *el;
+    tinyxml2::XMLDocument  fil;
+    tinyxml2::XMLElement* pack, *el;
     author = "";
     description = "Sokoban levels in SLC format";
     string email, url;
     n=0;
-    if (fil.LoadFile())
+    if (fil.LoadFile(path) == tinyxml2::XML_SUCCESS)
     {
         pack=fil.FirstChildElement("SokobanLevels");
         if (pack!=NULL)

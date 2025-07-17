@@ -1,14 +1,6 @@
 #pragma once
 
-/*
-There is a terrible bug when compiling tinyxml with STL support in combination of some compilers.
-
-#ifndef TIXML_USE_STL
-    #define TIXML_USE_STL
-#endif
-*/
-
-#include "tinyxml/xye_tinyxml.h"
+#include <tinyxml2.h>
 #include <string>
 
 #define PALETTE_BASE_SIZE 20
@@ -20,10 +12,10 @@ void TempMap();
 class LevelPack
 {
  private:
-     static TiXmlDocument* Doc;
-     static TiXmlElement* pack;
-     static TiXmlElement* CurrentLevel;
-     static TiXmlElement* FirstLevel;
+     static tinyxml2::XMLDocument* Doc;
+     static tinyxml2::XMLElement* pack;
+     static tinyxml2::XMLElement* CurrentLevel;
+     static tinyxml2::XMLElement* FirstLevel;
      static void LoadInformation();
 
      static void LoadFirstLevel();
@@ -70,10 +62,10 @@ class LevelPack
     static bool AllowUndo();
 };
 
-void LoadLevel(TiXmlElement* level);
+void LoadLevel(tinyxml2::XMLElement* level);
 struct KyeLevel;
-bool LoadKyeFormatTag(TiXmlElement* kft, KyeLevel* out);
-bool LoadKyeFormat(TiXmlElement* kf);
+bool LoadKyeFormatTag(tinyxml2::XMLElement* kft, KyeLevel* out);
+bool LoadKyeFormat(tinyxml2::XMLElement* kf);
 
 
 
@@ -127,5 +119,5 @@ class palette
 };
 
 
-blockcolor GetElementBlockColor(TiXmlElement* el,blockcolor def=B_YELLOW);
-edir GetElementDir(TiXmlElement* el,edir def=D_LEFT,const char* tag="dir");
+blockcolor GetElementBlockColor(tinyxml2::XMLElement* el,blockcolor def=B_YELLOW);
+edir GetElementDir(tinyxml2::XMLElement* el,edir def=D_LEFT,const char* tag="dir");
