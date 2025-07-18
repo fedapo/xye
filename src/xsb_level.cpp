@@ -54,7 +54,7 @@ int            fileLineN = 0;
 
 void addLine(const string s)
 {
-    if(fileLineN == fileLine.size()) {
+    if(fileLineN == std::ssize(fileLine)) {
         fileLine.push_back(s);
         fileLineN++;
     } else {
@@ -231,7 +231,7 @@ void XsbLevelPack::LoadSLC(const char* filename, unsigned int ln)
                     string row = ( (gt!=NULL) ? gt : "");
 
 
-                    for(int i=0; i<row.length(); i++)
+                    for(size_t i = 0; i < row.length(); i++)
                         if(swapped)
                             cur->data[linenum][i]= row[i];
                         else
