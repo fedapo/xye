@@ -254,7 +254,6 @@ void game::InitGraphics()
 
     RecolorCache::savecolor(&PlayerColor);
 
-    SDL_Color c;
     SDL_Surface* SS;
     if(options::GetFontSize()) //if not 0 then we want a truetypefont.
     {
@@ -358,9 +357,6 @@ int game::Init(const char* levelfile)
     printf("initializing level support...\n");
     LevelPack::Init();
 
-
-    char i,j;
-    int ix,iy;
     FastForward=false;
     started=false;
 
@@ -778,9 +774,6 @@ void game::SolutionCommand( const buttondata*bd)
 
 void game::onKeyDown(SDLKey keysim, Uint16 unicode)
 {
-    bool done=false;
-    bool browse=false;
-
                 switch (keysim)
                 {
                     case (SDLK_c) :
@@ -840,9 +833,6 @@ void game::onKeyDown(SDLKey keysim, Uint16 unicode)
 }
 void game::onKeyUp(SDLKey keysim, Uint16 unicode)
 {
-    bool done=false;
-    bool browse=false;
-
                 switch (keysim)
                 {
 
@@ -1110,7 +1100,7 @@ void game::InitGameSection(window* wind)
     rc = new rectangle(0, game::GRIDSIZE+oy, wind->Width, XYE_XTRA_Y, 0,0,0);
     wind->addControl(rc);
 
-    Sint16 cx=0, cy = oy+XYE_XTRA_Y + game::GRIDSIZE;
+    Sint16 cy = oy + XYE_XTRA_Y + game::GRIDSIZE;
 
     TheGameBoard = new gameboard(XYE_XTRA_X,cy, game::GRIDSIZE*XYE_HORZ, game::GRIDSIZE*XYE_VERT);
     wind->addControl(TheGameBoard);
@@ -1780,7 +1770,7 @@ edir GetDir(char ix, char iy, char ex,char ey)
 
 bool game::TryMoveXye(char dx, char dy, edir dir)
 {
-    char nx,ny,cx,cy;
+    char nx,ny;
     bool go=false;
     square* sq=Square(dx,dy);
     obj* object=sq->object;
@@ -2514,8 +2504,6 @@ bool SpotAffectedByAMagnetic_Sub(obj* forObject,edir dir, char mx, char my, char
 
 bool SpotAffectedByAMagnetic(obj* forObject, char x, char y)
 {
-
-    char nx, ny;
     magnetic* mg=NULL;
     //First the obvious
     if (FindMagnetic(game::SquareN(x+1,y),true,true,mg)) return true;
@@ -2745,7 +2733,6 @@ bool obj::GoFindASquare(bool (*cond)(square* sq), edir res[], int &resn, bool &f
     tm->steps=0;
     tm->next=NULL;
     end=next=tm;
-    bool able;
 
     do
     {
@@ -3159,7 +3146,7 @@ bool roboxye::Loop(bool* died)
 {
     UpdateSquare(); //One of the few objects that are always drawn
     *died=false;
-    bool Moved=false;
+    //bool Moved = false;
 
 
     bool pushed=false;
@@ -3644,13 +3631,11 @@ square* RoundAvance_Sub(obj* ToMove,
      roundcorner rcb, edir bdir, char bx1, char by1, char bx2, char by2)
 {
     //HGE* hge=game::hge;
-    square* osq;
     obj* object;
-    gobj* gobject;
     square *sq11,*sq12,*sq21,*sq22;
     bool a,b;
 
-    osq=game::SquareN(wx,wy);
+    square* osq=game::SquareN(wx,wy);
     if (Allowed(ToMove,dir,osq)) return osq;
     object=osq->object;
     if (! object) return NULL;
@@ -3691,13 +3676,7 @@ square* RoundAdvance(obj* ToMove,edir dir,char i, char j)
 {
 
     //HGE* hge=game::hge;
-    square* osq;
-    obj* object;
-    gobj* gobject;
 
-    square *sq11,*sq12,*sq21,*sq22;
-
-    bool a=false,b=false;
     switch(dir)
     {
           //RoundAvance_Sub does all the checks for us
@@ -3769,7 +3748,6 @@ bool block::Loop(bool* died)
     bool Moved=false;
     if  (DoMagnetism(true,true,&Moved))
         return Moved;
-        edir go;
 
     return false;
 }
@@ -3952,7 +3930,6 @@ bool largeblock::Loop(bool* died)
     bool Moved=false;
     if  (DoMagnetism(true,true,&Moved))
         return Moved;
-        edir go;
 
     return false;
 }
@@ -4291,7 +4268,6 @@ bool metalblock::Loop(bool* died)
     bool Moved=false;
     if  (DoMagnetism(true,true,&Moved))
         return Moved;
-        edir go;
 
     return false;
 }
@@ -4388,7 +4364,6 @@ bool scrollblock::Loop(bool* died)
     bool Moved=false;
     if  (DoMagnetism(true,true,&Moved))
         return Moved;
-        edir go;
 
     return false;
 }
@@ -4425,7 +4400,6 @@ bool wildcard::Loop(bool* died)
     bool Moved=false;
     if  (DoMagnetism(true,true,&Moved))
         return Moved;
-        edir go;
 
     return false;
 }
@@ -4493,7 +4467,6 @@ bool gemblock::Loop(bool* died)
     bool Moved=false;
     if  (DoMagnetism(true,true,&Moved))
         return Moved;
-        edir go;
 
     return false;
 }
@@ -4581,7 +4554,6 @@ bool magnetic::TryMagneticMove(char ox, char oy, char xx, char xy, edir godir, b
     if ((gobject!=NULL) && (! (gobject->CanEnter(this,godir))  )) return false;
 
     //Everything is OK, move the object:
-    char oldx=x, oldy=y;
 
     move(sq->sqx,sq->sqy);
     MovedTic=game::Counter();
@@ -5278,7 +5250,6 @@ bool factory::trypush(edir dir,obj* pusher) {
     {
         obj* object;lowdensity* lb;block* b;
         created=game::counter;limit--;
-        beast* be;
         switch(res)
         {
             case(OT_MINE):
@@ -5686,9 +5657,7 @@ void surprise::Transform()
       gobj *gobject = sq->gobject;
     if (gobject!=NULL) gobject->OnLeave(this);
     wall* wl;
-    dangerous* bh;
     impacter* bn;
-    magnetic* mg;
 
         switch(c)
         {
@@ -5766,7 +5735,6 @@ void surprise::Transform()
 
 void surprise::Draw(unsigned int x, unsigned int y)
 {
-    Uint8 tx,ty;
     Drawer D(game::sprites,0,0,0,0);
     SDL_Color SprColor;
     SDL_Color BC = options::BKColor[c] ,FBC= options::BFColor[c];
@@ -5780,7 +5748,6 @@ void surprise::Draw(unsigned int x, unsigned int y)
           gobj *gobject = sq->gobject;
         if (gobject!=NULL) gobject->OnLeave(this);
         wall* wl;
-        dangerous* bh;
         impacter* bn;
 
         switch(c)
@@ -5953,7 +5920,6 @@ toggle::toggle(square* sq,blockcolor tc,bool makeround, bool state)
 }
 void toggle::Draw(unsigned int x, unsigned int y)
 {
-    Uint8 tx,ty;
     Drawer D(game::sprites,0,0,0,0);
     if (round)
         D.ChangeRect(sz*2,0,sz,sz);
@@ -6085,7 +6051,6 @@ bool teleport::tryteleport(edir odir, obj* moving, char& nx, char& ny ,dangerous
 {
     if (pushed!=NULL) *pushed=false;
     reason=NULL;
-    bool go=false;
     switch(dir)
     {
          case(D_UP):
@@ -7630,7 +7595,6 @@ bool rfood::Loop(bool* died)
     bool Moved=false;
     if  (DoMagnetism(true,true,&Moved))
         return Moved;
-        edir go;
 
     return false;
 }
@@ -7745,7 +7709,6 @@ bool key::Loop(bool* died)
     bool Moved=false;
     if  (DoMagnetism(true,true,&Moved))
         return Moved;
-        edir go;
 
     return false;
 }
@@ -8636,9 +8599,6 @@ void portal::Loop()
 
 void portal::Draw(unsigned int x, unsigned int y)
 {
-    Uint8 tx,ty;
-
-
     Drawer D(game::sprites,8*sz,canim*sz,sz,sz);
 
     D.SetColors(R,G,B,255);

@@ -193,10 +193,8 @@ void XsbLevelPack::LoadSLC(const char* filename, unsigned int ln)
                 el->QueryIntAttribute("Width", &w);
                 el->QueryIntAttribute("Height", &h);
                 bool swapped = (h>XYE_VERT);
-                int L= w;
                 if(swapped)
                 {
-                    L = h;
                     std::swap(w,h);
                 }
                 if((w<0) || (h<0) || (w>XYE_HORZ) || (h>XYE_VERT) ) continue;
@@ -338,7 +336,7 @@ const char* XsbLevelPack::ReadData(const char* path,unsigned int &n, string&auth
     std::string line;
     unsigned int L;
 
-    unsigned char cw,ch,aux;
+    unsigned char cw,ch;
     int lpos = 0;
     while (lpos < fileLineN) {
         do {
@@ -362,7 +360,6 @@ const char* XsbLevelPack::ReadData(const char* path,unsigned int &n, string&auth
         }
         if (cw<ch)
         {
-            aux=ch;
             ch=cw;
             cw=ch;
         }
@@ -854,7 +851,6 @@ blockcolor XsbLevel::bc;
 
 void XsbLevel::SetGameCaption()
 {
-    int L=name.length();
     string title = "Xye - "+name;
     LevelPack::CurrentLevelTitle=title.c_str();
     SDL_WM_SetCaption(title.c_str(),0);
