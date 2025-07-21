@@ -102,7 +102,9 @@ enum editorcolor
 
 };
 
-struct TiXmlElement;
+namespace tinyxml2 {
+struct XMLElement;
+}
 struct boardelement;
 
 class editor
@@ -167,7 +169,7 @@ class editor
 
      static bool appendLevels(const string filename); //implemented in editorload.cpp
      static bool load_kye(); //implemented in editorload.cpp
-     static bool load_KyeFormat(TiXmlElement * el); //implemented in editorload.cpp
+     static bool load_KyeFormat(tinyxml2::XMLElement* el); //implemented in editorload.cpp
 
      static void continueAskHint(bool okclicked, const string text, inputDialogData * dat);
  public:

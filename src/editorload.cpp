@@ -1,11 +1,14 @@
 #include "xyedit.h"
 #include "xye.h"
-#include "tinyxml/xye_tinyxml.h"
 #include "kye_script.h"
 #include "xye_script.h"
-#include<iostream>
-#include<algorithm>
-#include<map>
+
+#include <tinyxml2.h>
+
+#include <iostream>
+#include <algorithm>
+#include <map>
+
 using std::map;
 using std::cout;
 
@@ -48,7 +51,7 @@ bool isObjectTypeTop(editorobjecttype ed)
 }
 
 
-bool getTopElementPosition(TiXmlElement *el, int &x , int &y, bool allowSamePos=false)
+bool getTopElementPosition(tinyxml2::XMLElement*el, int &x , int &y, bool allowSamePos=false)
 {
     x=400;
     y=400;
@@ -78,7 +81,7 @@ bool getTopElementPosition(TiXmlElement *el, int &x , int &y, bool allowSamePos=
     }
     return true;
 }
-bool getGroundElementPosition(TiXmlElement *el, int &x , int &y, bool allowSamePos=false)
+bool getGroundElementPosition(tinyxml2::XMLElement*el, int &x , int &y, bool allowSamePos=false)
 {
     x=400;
     y=400;
@@ -109,7 +112,7 @@ bool getGroundElementPosition(TiXmlElement *el, int &x , int &y, bool allowSameP
     return true;
 }
 
-bool editor_LoadWall(TiXmlElement* el, bool round = false)
+bool editor_LoadWall(tinyxml2::XMLElement* el, bool round = false)
 {
     int x,y; if(!getTopElementPosition(el,x,y)) return false;
     int t=editorload_defaultwall;
@@ -153,7 +156,7 @@ bool editor_LoadWall(TiXmlElement* el, bool round = false)
 }
 
 
-editorcolor getElementColor(TiXmlElement* el)
+editorcolor getElementColor(tinyxml2::XMLElement* el)
 {
     int t=0;
     el->QueryIntAttribute("nocolor",&t);
@@ -183,7 +186,7 @@ editorcolor getElementColor(TiXmlElement* el)
  return EDCO_YELLOW;
 }
 
-int getElementDirection(TiXmlElement* el)
+int getElementDirection(tinyxml2::XMLElement* el)
 {
     const char * ptr=el->Attribute("dir");
     if(! ptr)
@@ -202,7 +205,7 @@ int getElementDirection(TiXmlElement* el)
 }
 
 
-bool editor_LoadGem(TiXmlElement* el)
+bool editor_LoadGem(tinyxml2::XMLElement* el)
 {
     int x,y; if(!getTopElementPosition(el,x,y)) return false;
     editorcolor col=getElementColor(el);
@@ -213,7 +216,7 @@ bool editor_LoadGem(TiXmlElement* el)
     return true;
 }
 
-bool editor_LoadStar(TiXmlElement* el)
+bool editor_LoadStar(tinyxml2::XMLElement* el)
 {
     int x,y; if(!getTopElementPosition(el,x,y)) return false;
 
@@ -223,7 +226,7 @@ bool editor_LoadStar(TiXmlElement* el)
     return true;
 }
 
-bool editor_LoadGenRC(TiXmlElement* el,editorobjecttype type, int variation=0, editorcolor* oldcolor=NULL)
+bool editor_LoadGenRC(tinyxml2::XMLElement* el,editorobjecttype type, int variation=0, editorcolor* oldcolor=NULL)
 {
     int t= errorPositions.size();
     int x,y;
@@ -248,7 +251,7 @@ bool editor_LoadGenRC(TiXmlElement* el,editorobjecttype type, int variation=0, e
     return true;
 }
 
-bool editor_LoadGen(TiXmlElement * el, editorobjecttype type, int variation=0)
+bool editor_LoadGen(tinyxml2::XMLElement* el, editorobjecttype type, int variation=0)
 {
     int x,y;
     if (isObjectTypeTop(type)) {
@@ -265,7 +268,7 @@ bool editor_LoadGen(TiXmlElement * el, editorobjecttype type, int variation=0)
 
 
 
-bool editor_LoadGenR(TiXmlElement * el, editorobjecttype type, int variation=0, editorcolor color = EDCO_YELLOW)
+bool editor_LoadGenR(tinyxml2::XMLElement* el, editorobjecttype type, int variation=0, editorcolor color = EDCO_YELLOW)
 {
     int x,y;
     if (isObjectTypeTop(type)) {
@@ -283,7 +286,7 @@ bool editor_LoadGenR(TiXmlElement * el, editorobjecttype type, int variation=0, 
     return true;
 }
 
-bool editor_LoadGenD(TiXmlElement * el, editorobjecttype type, int variation=0)
+bool editor_LoadGenD(tinyxml2::XMLElement* el, editorobjecttype type, int variation=0)
 {
     int x,y;
     if (isObjectTypeTop(type)) {
@@ -301,7 +304,7 @@ bool editor_LoadGenD(TiXmlElement * el, editorobjecttype type, int variation=0)
 }
 
 
-bool editor_LoadGenDOpposite(TiXmlElement * el, editorobjecttype type, int variation=0)
+bool editor_LoadGenDOpposite(tinyxml2::XMLElement* el, editorobjecttype type, int variation=0)
 {
     int x,y;
     if (isObjectTypeTop(type)) {
@@ -326,7 +329,7 @@ bool editor_LoadGenDOpposite(TiXmlElement * el, editorobjecttype type, int varia
     return true;
 }
 
-bool editor_LoadGenCDR(TiXmlElement * el, editorobjecttype type, int variation=0)
+bool editor_LoadGenCDR(tinyxml2::XMLElement* el, editorobjecttype type, int variation=0)
 {
     int x,y;
     if (isObjectTypeTop(type)) {
@@ -348,7 +351,7 @@ bool editor_LoadGenCDR(TiXmlElement * el, editorobjecttype type, int variation=0
     return true;
 }
 
-bool editor_LoadGenCD(TiXmlElement * el, editorobjecttype type)
+bool editor_LoadGenCD(tinyxml2::XMLElement* el, editorobjecttype type)
 {
     int x,y;
     if (isObjectTypeTop(type)) {
@@ -370,7 +373,7 @@ bool editor_LoadGenCD(TiXmlElement * el, editorobjecttype type)
 }
 
 
-bool editor_LoadTimer(TiXmlElement * el)
+bool editor_LoadTimer(tinyxml2::XMLElement* el)
 {
     int x,y; if(!getTopElementPosition(el,x,y)) return false;
 
@@ -388,7 +391,7 @@ bool editor_LoadTimer(TiXmlElement * el)
 }
 
 
-bool editor_LoadToggle(TiXmlElement * el)
+bool editor_LoadToggle(tinyxml2::XMLElement* el)
 {
     int x,y; if(!getTopElementPosition(el,x,y)) return false;
 
@@ -482,7 +485,7 @@ void AssignLargeBLockVarDirFromFlags( Uint8 flags , int &variation, int &directi
     }
 }
 
-bool editor_LoadLargeBlock(TiXmlElement * el)
+bool editor_LoadLargeBlock(tinyxml2::XMLElement* el)
 {
     int x,y; if(!getTopElementPosition(el,x,y)) return false;
 
@@ -523,7 +526,7 @@ void AssignHiddenWayVarDirFromFlags( Uint32 flags , int &variation, int &directi
     }
 }
 
-bool editor_LoadHiddenWay(TiXmlElement * el)
+bool editor_LoadHiddenWay(tinyxml2::XMLElement* el)
 {
     int x,y; if(!getGroundElementPosition(el,x,y)) return false;
 
@@ -556,7 +559,7 @@ bool editor_LoadHiddenWay(TiXmlElement * el)
 
 
 bool loadPortalIssue = false;
-bool editor_LoadPortal(TiXmlElement * el)
+bool editor_LoadPortal(tinyxml2::XMLElement* el)
 {
     int &x = getElementPosition_lastx;
     int y=-1,tx=-1,ty=-1;
@@ -628,7 +631,7 @@ bool editor_LoadPortal(TiXmlElement * el)
 
 
 
-bool editor_LoadBeast(TiXmlElement * el)
+bool editor_LoadBeast(tinyxml2::XMLElement* el)
 {
     int x,y; if(!getTopElementPosition(el,x,y)) return false;
 
@@ -645,7 +648,7 @@ bool editor_LoadBeast(TiXmlElement * el)
 }
 
 
-bool editor_LoadMagnet(TiXmlElement * el)
+bool editor_LoadMagnet(tinyxml2::XMLElement* el)
 {
     int x,y; if(!getTopElementPosition(el,x,y)) return false;
 
@@ -664,7 +667,7 @@ bool editor_LoadMagnet(TiXmlElement * el)
     return true;
 }
 
-bool editor_LoadGenC(TiXmlElement * el, editorobjecttype type, int variation=0)
+bool editor_LoadGenC(tinyxml2::XMLElement* el, editorobjecttype type, int variation=0)
 {
     int x,y;
     if (isObjectTypeTop(type)) {
@@ -683,7 +686,7 @@ bool editor_LoadGenC(TiXmlElement * el, editorobjecttype type, int variation=0)
 }
 
 
-bool editor_LoadRattler(TiXmlElement* el)
+bool editor_LoadRattler(tinyxml2::XMLElement* el)
 {
     if(el->FirstChildElement()!=NULL)
     {
@@ -703,7 +706,7 @@ bool editor_LoadRattler(TiXmlElement* el)
 }
 
 
-bool editor_LoadEarth(TiXmlElement* el)
+bool editor_LoadEarth(tinyxml2::XMLElement* el)
 {
     int x,y; if(!getTopElementPosition(el,x,y)) return false;
     int round=false; el->QueryIntAttribute("round",&round);
@@ -714,7 +717,7 @@ bool editor_LoadEarth(TiXmlElement* el)
     return true;
 }
 
-bool editor_LoadColorDoor(TiXmlElement* el, int closedvariation)
+bool editor_LoadColorDoor(tinyxml2::XMLElement* el, int closedvariation)
 {
     int x,y; if(!getGroundElementPosition(el,x,y)) return false;
     int open=0; el->QueryIntAttribute("open",&open);
@@ -726,7 +729,7 @@ bool editor_LoadColorDoor(TiXmlElement* el, int closedvariation)
     return true;
 }
 
-bool editor_LoadFactory(TiXmlElement* el)
+bool editor_LoadFactory(tinyxml2::XMLElement* el)
 {
     int x,y,kind=0; if(!getTopElementPosition(el,x,y)) return false;
     el->QueryIntAttribute("kind",&kind);
@@ -769,7 +772,7 @@ bool editor_LoadFactory(TiXmlElement* el)
 
 }
 
-bool editor_LoadBlock(TiXmlElement* el)
+bool editor_LoadBlock(tinyxml2::XMLElement* el)
 {
     int x = errorPositions.size();
     editorcolor col;
@@ -794,7 +797,7 @@ bool editor_LoadBlock(TiXmlElement* el)
     return true;
 }
 
-bool editor_LoadHint(TiXmlElement* el)
+bool editor_LoadHint(tinyxml2::XMLElement* el)
 {
     int x,y;
     if(!getGroundElementPosition(el,x,y)) return false;
@@ -811,7 +814,7 @@ bool editor_LoadHint(TiXmlElement* el)
 }
 
 
-bool editor_LoadWildCardBlock(TiXmlElement* el)
+bool editor_LoadWildCardBlock(tinyxml2::XMLElement* el)
 {
     int x = errorPositions.size();
     if( ! editor_LoadGenR(el,EDOT_BLOCK,0, EDCO_WILD    ) ) {
@@ -833,9 +836,9 @@ bool editor_LoadWildCardBlock(TiXmlElement* el)
 }
 
 
-bool editor_LoadObjects(TiXmlElement* el)
+bool editor_LoadObjects(tinyxml2::XMLElement* el)
 {
-    TiXmlElement * ch=el->FirstChildElement();
+    tinyxml2::XMLElement* ch = el->FirstChildElement();
 
     while(ch!=NULL)
     {
@@ -912,7 +915,7 @@ bool editor_LoadObjects(TiXmlElement* el)
  return true;
 }
 
-bool editor_LoadXye(TiXmlElement* el)
+bool editor_LoadXye(tinyxml2::XMLElement* el)
 {
     int x,y;
 
@@ -1184,10 +1187,10 @@ void loadKyeChar( char ch, boardelement & o , int x)
     }
 }
 map<string, SDL_Color> editorload_palette;
-bool editor_LoadPalette(TiXmlElement* el)
+bool editor_LoadPalette(tinyxml2::XMLElement* el)
 {
     editorload_palette.clear();
-    TiXmlElement * ch=el->FirstChildElement();
+    tinyxml2::XMLElement* ch = el->FirstChildElement();
 
     while(ch!=NULL) {
 
@@ -1213,7 +1216,7 @@ bool editor_LoadPalette(TiXmlElement* el)
     return true;
 }
 
-bool editor_LoadDefault(TiXmlElement* el, DefaultColorData& cd)
+bool editor_LoadDefault(tinyxml2::XMLElement* el, DefaultColorData& cd)
 {
     const char* id = el->Attribute("color");
     if (id == NULL) {
@@ -1229,9 +1232,9 @@ bool editor_LoadDefault(TiXmlElement* el, DefaultColorData& cd)
     return true;
 }
 
-bool editor_LoadDefaults(TiXmlElement* el)
+bool editor_LoadDefaults(tinyxml2::XMLElement* el)
 {
-    TiXmlElement * ch=el->FirstChildElement();
+    tinyxml2::XMLElement* ch = el->FirstChildElement();
 
     while(ch!=NULL) {
 
@@ -1268,9 +1271,9 @@ bool editor_LoadDefaults(TiXmlElement* el)
     return true;
 }
 
-bool editor_LoadFloor(TiXmlElement* el)
+bool editor_LoadFloor(tinyxml2::XMLElement* el)
 {
-    TiXmlElement * ch=el->FirstChildElement();
+    tinyxml2::XMLElement* ch = el->FirstChildElement();
 
     while(ch!=NULL) {
 
@@ -1358,7 +1361,7 @@ bool editor::load_kye()
 }
 
 //-------------
-bool editor::load_KyeFormat(TiXmlElement* el)
+bool editor::load_KyeFormat(tinyxml2::XMLElement* el)
 {
     KyeLevel ky;
     if ( ! LoadKyeFormatTag(el, &ky) ) {
@@ -1387,14 +1390,14 @@ bool editor::appendLevels(const string file)
     loadPortalIssue = false;
     loadError = "";
     cout<<"Attempt to append file: "<<file<<endl;
-    TiXmlDocument  fil(file.c_str());
+    tinyxml2::XMLDocument  fil;
 
     int x = editorboard::CurrentLevelNumber();
     int n = editorboard::CountLevels();
     int oldn = n;
-    if (fil.LoadFile())
+    if (fil.LoadFile(file.c_str()) == tinyxml2::XML_SUCCESS)
     {
-        TiXmlElement* pack, *el, *level;
+        tinyxml2::XMLElement* pack, *el, *level;
         pack=fil.FirstChildElement("pack");
         if (pack==NULL)
         {
@@ -1594,14 +1597,14 @@ bool editor::load()
     }
 
     editorboard::ResetLevels(true);
-    TiXmlDocument  fil(filename.c_str());
-    if (fil.LoadFile())
+    tinyxml2::XMLDocument fil;
+    if (fil.LoadFile(filename.c_str()) == tinyxml2::XML_SUCCESS)
     {
         string lauthor="xyedit",ldescription="Generated by xyedit";
         string lname=filename_name;
         cout<<"Correctly loaded XML file.\n";
 
-        TiXmlElement* pack, *el, *level;
+        tinyxml2::XMLElement* pack, *el;
 
 
 
@@ -1650,9 +1653,9 @@ bool editor::load()
     else
     {
         cout<<"Unable to load level file.\n";
-        cout<<"\t"<<fil.ErrorDesc()<<"\n";
+        cout<<"\t"<<fil.ErrorStr()<<"\n";
 
-        if (fil.ErrorId()==2)
+        if (fil.ErrorID()==2)
         {
             if(filename_name=="editortest.xye") {
                 editorboard::ResetLevels();
@@ -1664,7 +1667,7 @@ bool editor::load()
 
         }
         else
-            loadError="There are errors in the XML structure of the file: "+string(fil.ErrorDesc());
+            loadError="There are errors in the XML structure of the file: "+string(fil.ErrorStr());
         return false;
     }
     return true;

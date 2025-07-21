@@ -12,15 +12,9 @@ find_package(SDL_ttf REQUIRED)
 #find_package(SDL3 CONFIG REQUIRED)
 #find_package(SDL3_image CONFIG REQUIRED)
 #find_package(SDL3_ttf CONFIG REQUIRED)
+find_package(tinyxml2 CONFIG REQUIRED)
 
 #add_compile_options($<$<CXX_COMPILER_ID:GNU,Clang>:-Wall> $<$<CXX_COMPILER_ID:GNU,Clang>:-Wextra> -Wpedantic)
-
-add_library(tinyxml
-    src/tinyxml/xye_tinystr.cpp
-    src/tinyxml/xye_tinyxml.cpp
-    src/tinyxml/xye_tinyxmlerror.cpp
-    src/tinyxml/xye_tinyxmlparser.cpp
-)
 
 add_executable(xye
     src/browser.cpp
@@ -49,7 +43,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 target_link_libraries(xye
-    tinyxml
+    tinyxml2::tinyxml2
 
     SDL::SDL
     ${SDL_IMAGE_LIBRARIES}

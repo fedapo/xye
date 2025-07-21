@@ -19,6 +19,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "xye.h"
 #include "browser.h"
 
+#include <tinyxml2.h>
+
 #include<iostream>
 #include<fstream>
 #include<map>
@@ -93,10 +95,10 @@ bool haspickedtheme=false;
 bool enundo=false;
 bool bini=false;
 
-/*TiXmlDocument* cnf;
-TiXmlDocument* skin;
-TiXmlElement* ele;
-TiXmlElement* skinele;
+/*tinyxml2::XMLDocument* cnf;
+tinyxml2::XMLDocument* skin;
+tinyxml2::XMLElement* ele;
+tinyxml2::XMLElement* skinele;
 */
 
 
@@ -166,10 +168,10 @@ struct parsedSkinFile
 
 };
 
-bool tryParseColorOptions(TiXmlElement* skn, SDL_Color* c,char type,char bc)
+bool tryParseColorOptions(tinyxml2::XMLElement* skn, SDL_Color* c,char type,char bc)
 {
     if (!skn) return false;
-    TiXmlElement* tem=skn->FirstChildElement("color");
+    tinyxml2::XMLElement* tem = skn->FirstChildElement("color");
     const char* e1,*e2;
     char alt= bc-'A'+'a';
     while (tem)
@@ -196,7 +198,7 @@ bool tryParseColorOptions(TiXmlElement* skn, SDL_Color* c,char type,char bc)
     return false;
 }
 
-void TryLoadLevelMenuColor(TiXmlElement* levelmenu, const char* name, SDL_Color & c, Uint8 dR, Uint8 dG, Uint8 dB)
+void TryLoadLevelMenuColor(tinyxml2::XMLElement* levelmenu, const char* name, SDL_Color & c, Uint8 dR, Uint8 dG, Uint8 dB)
 {
     if(levelmenu==NULL)
     {
@@ -206,7 +208,7 @@ void TryLoadLevelMenuColor(TiXmlElement* levelmenu, const char* name, SDL_Color 
     }
     else
     {
-        TiXmlElement* el=levelmenu->FirstChildElement(name);
+        tinyxml2::XMLElement* el = levelmenu->FirstChildElement(name);
         if(el!=NULL)
         {
             string quo;
@@ -225,8 +227,8 @@ void TryLoadLevelMenuColor(TiXmlElement* levelmenu, const char* name, SDL_Color 
     c.unused=255;
 }
 
-string parseSkinMenuColors(TiXmlElement* ele, parsedSkinFile & ps) {
-    TiXmlElement* el=ele->FirstChildElement("levelmenu");
+string parseSkinMenuColors(tinyxml2::XMLElement* ele, parsedSkinFile & ps) {
+    tinyxml2::XMLElement* el = ele->FirstChildElement("levelmenu");
     TryLoadLevelMenuColor(el,"info"         ,ps.LevelMenu_info         ,239,235,231);
     TryLoadLevelMenuColor(el,"selected"     ,ps.LevelMenu_selected     ,250,211,150);
     TryLoadLevelMenuColor(el,"selectederror",ps.LevelMenu_selectederror,255,  0,  0);
@@ -238,8 +240,8 @@ string parseSkinMenuColors(TiXmlElement* ele, parsedSkinFile & ps) {
     return "";
 }
 
-string parseMiscColorOptions(TiXmlElement* skn, parsedSkinFile & ps) {
-    TiXmlElement* tem=skn->FirstChildElement("color");
+string parseMiscColorOptions(tinyxml2::XMLElement* skn, parsedSkinFile & ps) {
+    tinyxml2::XMLElement* tem = skn->FirstChildElement("color");
     while (tem!=NULL)
     {
         int variation = -1;
@@ -306,8 +308,8 @@ string parseMiscColorOptions(TiXmlElement* skn, parsedSkinFile & ps) {
 }
 
 
-void parseSkinInformation(TiXmlElement* ele, parsedSkinFile & ps) {
-    TiXmlElement* tem=ele->FirstChildElement("author");
+void parseSkinInformation(tinyxml2::XMLElement* ele, parsedSkinFile & ps) {
+    tinyxml2::XMLElement* tem = ele->FirstChildElement("author");
     if (tem!=NULL) {
         if (tem->GetText() != NULL) {
             ps.author = tem->GetText();
@@ -328,7 +330,7 @@ void parseSkinInformation(TiXmlElement* ele, parsedSkinFile & ps) {
 
 }
 
-string parseSkinColors(TiXmlElement* ele, parsedSkinFile & ps) {
+string parseSkinColors(tinyxml2::XMLElement* ele, parsedSkinFile & ps) {
     string tm = parseSkinMenuColors(ele, ps);
     if(tm != "") {
         return tm;
@@ -449,13 +451,12 @@ string parseSkinColors(TiXmlElement* ele, parsedSkinFile & ps) {
 
 string parseSkinFile(const char*filename, parsedSkinFile & ps)
 {
-    bool correct = false;
-    TiXmlDocument skinxml(filename);
-    if ( ! skinxml.LoadFile()) {
-        cout << skinxml.ErrorDesc()<<endl;
+    tinyxml2::XMLDocument skinxml;
+    if (!skinxml.LoadFile(filename) != tinyxml2::XML_SUCCESS) {
+        cout << skinxml.ErrorStr() << endl;
         return "Not a valid XML file.";
     }
-    TiXmlElement* ele=skinxml.FirstChild("xyeskin")->ToElement();
+    tinyxml2::XMLElement* ele = skinxml.FirstChildElement("xyeskin")->ToElement();
     if ( ele == NULL ) {
         return "Not a valid Xye skin file.";
     }
@@ -538,13 +539,11 @@ bool Error(const char* msg)
     throw msg;
 }
 
-TiXmlElement* GetOptionsElement(TiXmlDocument* cnf)
+tinyxml2::XMLElement* GetOptionsElement(tinyxml2::XMLDocument* cnf, const char* fname)
 {
-    TiXmlElement* ele;
-    if (cnf->LoadFile())
+    if (cnf->LoadFile(fname) == tinyxml2::XML_SUCCESS)
     {
-        ele=cnf->FirstChildElement("options");
-        return(ele);
+        return cnf->FirstChildElement("options");
     }
  return NULL;
 }
@@ -568,7 +567,7 @@ void Default()
     LevelFile = "#browse";
 }
 
-TiXmlDocument* defaultxyeconf(const char* path,TiXmlElement *&options)
+tinyxml2::XMLDocument* defaultxyeconf(const char* path,tinyxml2::XMLElement*&options)
 {
     std::ofstream file;
     file.open (path,std::ios::trunc | std::ios::out );
@@ -579,8 +578,8 @@ TiXmlDocument* defaultxyeconf(const char* path,TiXmlElement *&options)
 "<options levelfile='#browse#' skinfile='default.xml' red='52' green='255' blue='52' />";
 
     file.close();
-    TiXmlDocument* r=new TiXmlDocument(path);
-    if (options=GetOptionsElement(r))
+    auto r = new tinyxml2::XMLDocument();
+    if (options=GetOptionsElement(r, path))
         return r;
     delete r;
     return NULL;
@@ -588,19 +587,19 @@ TiXmlDocument* defaultxyeconf(const char* path,TiXmlElement *&options)
 
 
 
-TiXmlDocument* getxyeconf(TiXmlElement *&options  )
+tinyxml2::XMLDocument* getxyeconf(tinyxml2::XMLElement*&options  )
 {
     printf("Looking for valid xyeconf.xml:\n");
     string home = GetConfigHomeFolder(), loc;
     redo:
-    TiXmlDocument* r;
+    tinyxml2::XMLDocument* r;
     if (home.length() != 0) {
         loc = home + "/xyeconf.xml";
     } else {
         loc = Dir + "/xyeconf.xml";
     }
-    r = new TiXmlDocument(loc.c_str());
-    if (options = GetOptionsElement(r) ) {
+    r = new tinyxml2::XMLDocument;
+    if (options = GetOptionsElement(r, loc.c_str()) ) {
         cout << "xyeconf.xml location: "<<loc<<endl;
         return r;
     }
@@ -720,8 +719,8 @@ void Init()
     bini=true;
     GridSize=20;
     bini=true;
-    TiXmlElement* ele;
-    TiXmlDocument* cnf = getxyeconf(ele);
+    tinyxml2::XMLElement* ele;
+    tinyxml2::XMLDocument* cnf = getxyeconf(ele);
 
     if (!ele)
     {

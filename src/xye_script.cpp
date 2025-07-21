@@ -22,8 +22,10 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "kye_script.h"
 #include "xsb_level.h"
 #include "gen.h"
-#include "tinyxml/xye_tinyxml.h"
-#include<string>
+
+#include <tinyxml2.h>
+
+#include <string>
 
 
 /** Class LevelPack begin**/
@@ -42,10 +44,10 @@ bool LevelPack::xsbmode;
 bool LevelPack::FromEditor=false;
 
 
-TiXmlDocument* LevelPack::Doc =NULL;
-TiXmlElement* LevelPack::pack =NULL ;
-TiXmlElement* LevelPack::CurrentLevel =NULL;
-TiXmlElement* LevelPack::FirstLevel =NULL;
+tinyxml2::XMLDocument* LevelPack::Doc = nullptr;
+tinyxml2::XMLElement* LevelPack::pack = nullptr;
+tinyxml2::XMLElement* LevelPack::CurrentLevel = nullptr;
+tinyxml2::XMLElement* LevelPack::FirstLevel = nullptr;
 
 string LevelPack::CurrentLevelTitle;
 
@@ -90,7 +92,6 @@ void LevelPack::LoadNthLevel(unsigned int n)
 
     CurrentLevel=FirstLevel=pack->FirstChildElement("level");
     if (! FirstLevel) { LevelPack::Error("can't find any level"); return; }
-    TiXmlElement* tm=FirstLevel;
     int i=1;
     while ((i<n) && (CurrentLevel))
     {
@@ -145,7 +146,7 @@ void  LevelPack::LoadInformation()
     a=0;
 
     //Number of levels (count)
-    TiXmlElement* pEChild=pack->FirstChildElement("level");
+    tinyxml2::XMLElement* pEChild = pack->FirstChildElement("level");
     n=0;
     while(pEChild)
     {
@@ -256,13 +257,13 @@ bool LevelPack::GetFileData(const char* filename, string &au, string &ds, string
    ds="...";
    ti="!!!";
 return true;*/
-    //TiXmlDocument fil(tm2);
-    TiXmlDocument  fil(filename);
+    //tinyxml2::XMLDocument fil(tm2);
+    tinyxml2::XMLDocument fil;
 
 
-    TiXmlElement* pack, *el;
+    tinyxml2::XMLElement* pack, *el;
     bool val=false;
-    if (fil.LoadFile())
+    if (fil.LoadFile(filename) == tinyxml2::XML_SUCCESS)
     {
         pack=fil.FirstChildElement("pack");
         if (pack!=NULL)
@@ -320,9 +321,9 @@ return true;*/
 
         au="Invalid File";
         ds="This file is not a valid Xye level file";
-        int L=strlen(fil.ErrorDesc());
+        int L = strlen(fil.ErrorStr());
         char* err=new char[L+40];
-        sprintf(err,"\n\n(Error: %s at line: %d col: %d)",fil.ErrorDesc(),fil.ErrorRow(),fil.ErrorCol());
+        sprintf(err, "\n\n(Error: %s at line: %d)", fil.ErrorStr(), fil.ErrorLineNum());//, fil.ErrorCol());
         ds+=err;
         delete[] err;
         ti="Invalid File";
@@ -384,9 +385,9 @@ void LevelPack::Load(const char *filename, unsigned int ln, const string replay)
         return;
     }
     kyemode=xsbmode=defmode=false;
-    Doc= new TiXmlDocument(filename);
+    Doc = new tinyxml2::XMLDocument;
 
-    if (Doc->LoadFile())
+    if (Doc->LoadFile(filename) == tinyxml2::XML_SUCCESS)
     {
 
         pack=Doc->FirstChildElement("pack");
@@ -434,7 +435,7 @@ void LevelPack::Load(const char *filename, unsigned int ln, const string replay)
     }
     else
     {
-        string s=string("Invalid / Missing Level xml file: "+string(filename)+" ["+string(Doc->ErrorDesc())+"]")  ;
+        string s = "Invalid / Missing Level xml file: " + string(filename) + " [" + string(Doc->ErrorStr()) + "]";
         fprintf(stderr,"%s", s.c_str() );
         LevelPack::Error(s.c_str());
     }
@@ -460,7 +461,7 @@ void LevelPack::Next()
         XsbLevelPack::Next();
         return;
     }
-    TiXmlElement* nx= (CurrentLevel->NextSiblingElement("level"));
+    tinyxml2::XMLElement* nx = CurrentLevel->NextSiblingElement("level");
     if (nx)
     {
         CurrentLevel=nx;
@@ -492,8 +493,8 @@ void LevelPack::Last()
         XsbLevelPack::Last();
         return;
     }
-    TiXmlNode * nd=CurrentLevel->PreviousSibling("level");
-    while ((nd) && (! nd->ToElement() )) nd=nd->PreviousSibling("level");
+    tinyxml2::XMLNode* nd = CurrentLevel->PreviousSiblingElement("level");
+    while ((nd) && (! nd->ToElement() )) nd=nd->PreviousSiblingElement("level");
 
     if (nd)
     {
@@ -503,7 +504,7 @@ void LevelPack::Last()
     else
     {
 
-        TiXmlElement * el=FirstLevel, *ls;
+        tinyxml2::XMLElement* el = FirstLevel, *ls;
         OpenFileLn=1;
         while ( (ls=el) &&  (el=el->NextSiblingElement("level")) ) OpenFileLn++;;
         CurrentLevel=ls;
@@ -520,8 +521,8 @@ bool LevelPack::HasPrevious()
         return KyeLevelPack::HasLast();
     if (xsbmode)
         return XsbLevelPack::HasLast();
-    TiXmlNode * nd=CurrentLevel->PreviousSibling("level");
-    while ((nd) && (! nd->ToElement() )) nd=nd->PreviousSibling("level");
+    tinyxml2::XMLNode* nd = CurrentLevel->PreviousSiblingElement("level");
+    while ((nd) && (! nd->ToElement() )) nd=nd->PreviousSiblingElement("level");
     return (nd != NULL);
 }
 bool LevelPack::HasNext()
@@ -579,7 +580,7 @@ int LastY;
 
 
 /* Load Xye*/
-void Load_Xye(TiXmlElement* el,bool KyeLoaded)
+void Load_Xye(tinyxml2::XMLElement* el,bool KyeLoaded)
 {
     int lives=4;
         el->QueryIntAttribute("x",&LastX);
@@ -592,7 +593,7 @@ void Load_Xye(TiXmlElement* el,bool KyeLoaded)
 }
 
 /* Load Wall*/
-void Load_Wall(TiXmlElement* el, bool defround)
+void Load_Wall(tinyxml2::XMLElement* el, bool defround)
 {
     int cid=0,r1=defround,r3=defround,r7=defround,r9=defround,t=-1;
     int x2=0,y2=0,i,j;
@@ -674,7 +675,7 @@ void Load_Wall(TiXmlElement* el, bool defround)
 }
 
 /* Load Gem*/
-void Load_Gem(TiXmlElement* el)
+void Load_Gem(tinyxml2::XMLElement* el)
 {
         el->QueryIntAttribute("x",&LastX);
         el->QueryIntAttribute("y",&LastY);
@@ -685,7 +686,7 @@ void Load_Gem(TiXmlElement* el)
 }
 
 /* Load Star*/
-void Load_Star(TiXmlElement* el)
+void Load_Star(tinyxml2::XMLElement* el)
 {
         el->QueryIntAttribute("x",&LastX);
         el->QueryIntAttribute("y",&LastY);
@@ -697,7 +698,7 @@ void Load_Star(TiXmlElement* el)
 
 
 /* Load Number*/
-void Load_Number(TiXmlElement* el)
+void Load_Number(tinyxml2::XMLElement* el)
 {
     int v=0,round=0;
     unsigned char cv;
@@ -713,7 +714,7 @@ void Load_Number(TiXmlElement* el)
 
 
 /* Load Robot*/
-void Load_Robot(TiXmlElement* el)
+void Load_Robot(tinyxml2::XMLElement* el)
 {
     int v=0;
     unsigned char cv;
@@ -730,7 +731,7 @@ void Load_Robot(TiXmlElement* el)
 
 
 /* Load BlackHole*/
-void Load_Blackhole(TiXmlElement* el)
+void Load_Blackhole(tinyxml2::XMLElement* el)
 {
         el->QueryIntAttribute("x",&LastX);
         el->QueryIntAttribute("y",&LastY);
@@ -741,7 +742,7 @@ void Load_Blackhole(TiXmlElement* el)
 }
 
 /* Load Mine*/
-void Load_Mine(TiXmlElement* el)
+void Load_Mine(tinyxml2::XMLElement* el)
 {
         el->QueryIntAttribute("x",&LastX);
         el->QueryIntAttribute("y",&LastY);
@@ -753,7 +754,7 @@ void Load_Mine(TiXmlElement* el)
 
 
 /* Load Block*/
-void Load_Block(TiXmlElement* el)
+void Load_Block(tinyxml2::XMLElement* el)
 {
     int colorless=0,round=0;
 
@@ -769,7 +770,7 @@ void Load_Block(TiXmlElement* el)
 }
 
 /* Load LargeBlock*/
-void Load_LargeBlock(TiXmlElement* el)
+void Load_LargeBlock(tinyxml2::XMLElement* el)
 {
     int colorless=0;
         el->QueryIntAttribute("x",&LastX);
@@ -804,7 +805,7 @@ void Load_LargeBlock(TiXmlElement* el)
 }
 
 /* Load WindowBlock*/
-void Load_WindowBlock(TiXmlElement* el)
+void Load_WindowBlock(tinyxml2::XMLElement* el)
 {
 
         el->QueryIntAttribute("x",&LastX);
@@ -818,7 +819,7 @@ void Load_WindowBlock(TiXmlElement* el)
 
 
 /* Load Rattler Food*/
-void Load_RFood(TiXmlElement* el)
+void Load_RFood(tinyxml2::XMLElement* el)
 {
 
         el->QueryIntAttribute("x",&LastX);
@@ -831,7 +832,7 @@ void Load_RFood(TiXmlElement* el)
 
 
 /* Load Rattler*/
-void Load_Rattler(TiXmlElement* el)
+void Load_Rattler(tinyxml2::XMLElement* el)
 {
     int grow=0;
 
@@ -841,7 +842,7 @@ void Load_Rattler(TiXmlElement* el)
         edir d=GetElementDir(el, D_DOWN );
 
     rattler* rt=new rattler(game::SquareN(LastX,LastY),d,grow);
-    TiXmlElement* nd=el->FirstChildElement("body");
+    tinyxml2::XMLElement* nd = el->FirstChildElement("body");
     while (nd)
     {
         nd->QueryIntAttribute("x",&LastX);
@@ -854,7 +855,7 @@ void Load_Rattler(TiXmlElement* el)
 
 
 /* Load Lock*/
-void Load_Lock(TiXmlElement* el)
+void Load_Lock(tinyxml2::XMLElement* el)
 {
         el->QueryIntAttribute("x",&LastX);
         el->QueryIntAttribute("y",&LastY);
@@ -863,7 +864,7 @@ void Load_Lock(TiXmlElement* el)
 }
 
 /* Load Key*/
-void Load_Key(TiXmlElement* el)
+void Load_Key(tinyxml2::XMLElement* el)
 {
         el->QueryIntAttribute("x",&LastX);
         el->QueryIntAttribute("y",&LastY);
@@ -877,7 +878,7 @@ void Load_Key(TiXmlElement* el)
 
 
 /* Load Low Density*/
-void Load_LowDensity(TiXmlElement* el)
+void Load_LowDensity(tinyxml2::XMLElement* el)
 {
     int round=0;
         el->QueryIntAttribute("x",&LastX);
@@ -890,7 +891,7 @@ void Load_LowDensity(TiXmlElement* el)
 
 
 /* Load Surprise*/
-void Load_Surprise(TiXmlElement* el)
+void Load_Surprise(tinyxml2::XMLElement* el)
 {
     int round=0;
 
@@ -906,7 +907,7 @@ void Load_Surprise(TiXmlElement* el)
 
 
 /* Load turner*/
-void Load_Turner(TiXmlElement* el,unsigned int aclock)
+void Load_Turner(tinyxml2::XMLElement* el,unsigned int aclock)
 {
     int colorless=0,round=0;
 
@@ -924,7 +925,7 @@ void Load_Turner(TiXmlElement* el,unsigned int aclock)
 
 
 /* Load GemBlock*/
-void Load_GemBlock(TiXmlElement* el)
+void Load_GemBlock(tinyxml2::XMLElement* el)
 {
 
         el->QueryIntAttribute("x",&LastX);
@@ -937,7 +938,7 @@ void Load_GemBlock(TiXmlElement* el)
 }
 
 /* Load WildCard*/
-void Load_WildCard(TiXmlElement* el)
+void Load_WildCard(tinyxml2::XMLElement* el)
 {
 
         el->QueryIntAttribute("x",&LastX);
@@ -951,7 +952,7 @@ void Load_WildCard(TiXmlElement* el)
 }
 
 /* Load MetalBlock*/
-void Load_MetalBlock(TiXmlElement* el)
+void Load_MetalBlock(tinyxml2::XMLElement* el)
 {
 
         el->QueryIntAttribute("x",&LastX);
@@ -966,7 +967,7 @@ void Load_MetalBlock(TiXmlElement* el)
 
 
 /* Load Earth*/
-void Load_Earth(TiXmlElement* el)
+void Load_Earth(tinyxml2::XMLElement* el)
 {
     int c=0;
     int r=0;
@@ -991,7 +992,7 @@ void Load_Earth(TiXmlElement* el)
 
 
 /* Load Auto*/
-void Load_Auto(TiXmlElement* el)
+void Load_Auto(tinyxml2::XMLElement* el)
 {
     int round=0;
 
@@ -1010,7 +1011,7 @@ void Load_Auto(TiXmlElement* el)
 
 
 /* Load Factory*/
-void Load_Factory(TiXmlElement* el)
+void Load_Factory(tinyxml2::XMLElement* el)
 {
     int round=0,colorless=0,kind=0,limit=1000000;
     int ib=0;
@@ -1061,7 +1062,7 @@ void Load_Factory(TiXmlElement* el)
 
 
 /* Load Filler*/
-void Load_Filler(TiXmlElement* el)
+void Load_Filler(tinyxml2::XMLElement* el)
 {
     int round=0;
 
@@ -1079,7 +1080,7 @@ void Load_Filler(TiXmlElement* el)
 }
 
 /* Load Snipper*/
-void Load_Sniper(TiXmlElement* el)
+void Load_Sniper(tinyxml2::XMLElement* el)
 {
     int round=0;
 
@@ -1097,7 +1098,7 @@ void Load_Sniper(TiXmlElement* el)
 
 
 /* Load Arrow*/
-void Load_Arrow(TiXmlElement* el)
+void Load_Arrow(tinyxml2::XMLElement* el)
 {
     int round=0;
 
@@ -1115,7 +1116,7 @@ void Load_Arrow(TiXmlElement* el)
 }
 
 /* Load ScrollBlock*/
-void Load_ScrollBlock(TiXmlElement* el)
+void Load_ScrollBlock(tinyxml2::XMLElement* el)
 {
     int round=0,nocolor=0;
 
@@ -1137,7 +1138,7 @@ void Load_ScrollBlock(TiXmlElement* el)
 
 
 /* Load Teleport*/
-void Load_Teleport(TiXmlElement* el)
+void Load_Teleport(tinyxml2::XMLElement* el)
 {
     int round=0;
 
@@ -1160,7 +1161,7 @@ void Load_Teleport(TiXmlElement* el)
 
 
 /* Load Toggle*/
-void Load_Toggle(TiXmlElement* el)
+void Load_Toggle(tinyxml2::XMLElement* el)
 {
     int round=0;
     int off=0;
@@ -1182,7 +1183,7 @@ void Load_Toggle(TiXmlElement* el)
 
 
 /* Load Pusher*/
-void Load_Pusher(TiXmlElement* el)
+void Load_Pusher(tinyxml2::XMLElement* el)
 {
 
         el->QueryIntAttribute("x",&LastX);
@@ -1196,7 +1197,7 @@ void Load_Pusher(TiXmlElement* el)
 }
 
 /* Load Beast*/
-void Load_Beast(TiXmlElement* el)
+void Load_Beast(tinyxml2::XMLElement* el)
 {
 
         el->QueryIntAttribute("x",&LastX);
@@ -1215,7 +1216,7 @@ void Load_Beast(TiXmlElement* el)
 
 
 /* Load Magnet*/
-void Load_Magnet(TiXmlElement* el)
+void Load_Magnet(tinyxml2::XMLElement* el)
 {
     int kind=0;
     int horz=0;
@@ -1237,7 +1238,7 @@ void Load_Magnet(TiXmlElement* el)
 
 
 /* Load BlockDoor */
-void Load_BlockDoor(TiXmlElement* el, unsigned int AsTrap)
+void Load_BlockDoor(tinyxml2::XMLElement* el, unsigned int AsTrap)
 {
     int open=0,round=0;
 
@@ -1250,7 +1251,7 @@ void Load_BlockDoor(TiXmlElement* el, unsigned int AsTrap)
 }
 
 /* Load Marked Area */
-void Load_Marked(TiXmlElement* el)
+void Load_Marked(tinyxml2::XMLElement* el)
 {
         el->QueryIntAttribute("x",&LastX);
         el->QueryIntAttribute("y",&LastY);
@@ -1260,7 +1261,7 @@ void Load_Marked(TiXmlElement* el)
 }
 
 /* Load Fire Pad*/
-void Load_FirePad(TiXmlElement* el)
+void Load_FirePad(tinyxml2::XMLElement* el)
 {
         el->QueryIntAttribute("x",&LastX);
         el->QueryIntAttribute("y",&LastY);
@@ -1269,7 +1270,7 @@ void Load_FirePad(TiXmlElement* el)
 }
 
 /* Load Pit*/
-void Load_Pit(TiXmlElement* el)
+void Load_Pit(tinyxml2::XMLElement* el)
 {
         el->QueryIntAttribute("x",&LastX);
         el->QueryIntAttribute("y",&LastY);
@@ -1279,7 +1280,7 @@ void Load_Pit(TiXmlElement* el)
 
 
 /* Load Hint */
-void Load_Hint(TiXmlElement* el, bool warn)
+void Load_Hint(tinyxml2::XMLElement* el, bool warn)
 {
     int c1=0,c2;
         el->QueryIntAttribute("x",&LastX);
@@ -1297,7 +1298,7 @@ void Load_Hint(TiXmlElement* el, bool warn)
 #include<iostream>
 
 /* Load Portal */
-void Load_Portal(TiXmlElement* el)
+void Load_Portal(tinyxml2::XMLElement* el)
 {
     int tx=0,ty=0,c=0;
     int defcolor=-1;
@@ -1334,7 +1335,7 @@ void Load_Portal(TiXmlElement* el)
 }
 
 /* Load TrickDoor */
-void Load_TrickDoor(TiXmlElement* el, int opt)
+void Load_TrickDoor(tinyxml2::XMLElement* el, int opt)
 {
    int c=0;
    el->QueryIntAttribute("x",&LastX);
@@ -1410,7 +1411,7 @@ void Load_TrickDoor(TiXmlElement* el, int opt)
 //==================================================================================================
 // Really helpful things:
 //
-blockcolor GetElementBlockColor(TiXmlElement* el, blockcolor def)
+blockcolor GetElementBlockColor(tinyxml2::XMLElement* el, blockcolor def)
 {
     char x='\0';
     const char* at=el->Attribute ("bc");
@@ -1427,7 +1428,7 @@ blockcolor GetElementBlockColor(TiXmlElement* el, blockcolor def)
     return (def);
 }
 
-edir GetElementDir(TiXmlElement* el, edir def,const char * tag)
+edir GetElementDir(tinyxml2::XMLElement* el, edir def,const char * tag)
 {
     char x='\0';
     const char* at=el->Attribute (tag);
@@ -1446,7 +1447,7 @@ edir GetElementDir(TiXmlElement* el, edir def,const char * tag)
 
 
 
-otype GetOTFromXmlElement(TiXmlElement* x, unsigned int *extra)
+otype GetOTFromXmlElement(tinyxml2::XMLElement* x, unsigned int *extra)
 {
 
     strcpy(TempCharA,x->Value());
@@ -1508,9 +1509,9 @@ otype GetOTFromXmlElement(TiXmlElement* x, unsigned int *extra)
 //========================================================================================
 // Let's load the objects!:
 //
-void LoadObjects(TiXmlElement* normal)
+void LoadObjects(tinyxml2::XMLElement* normal)
 {
-    TiXmlElement* pEChild= normal->FirstChildElement();
+    tinyxml2::XMLElement* pEChild = normal->FirstChildElement();
     unsigned int x=0;
     while (pEChild)
     {
@@ -1566,9 +1567,9 @@ void LoadObjects(TiXmlElement* normal)
 }
 
 //===========================================================================================
-void LoadPalette(TiXmlElement* pal)
+void LoadPalette(tinyxml2::XMLElement* pal)
 {
-    TiXmlElement* pEChild= pal->FirstChildElement("color");
+    tinyxml2::XMLElement* pEChild = pal->FirstChildElement("color");
 
     int id=0;
     int r,g,b;
@@ -1603,7 +1604,7 @@ void LoadPalette(TiXmlElement* pal)
 
 
 //===========================================================================================
-void LoadDefaults_Wall(TiXmlElement* el)
+void LoadDefaults_Wall(tinyxml2::XMLElement* el)
 {
     int cid=0;
     int t=0;
@@ -1625,7 +1626,7 @@ void LoadDefaults_Wall(TiXmlElement* el)
 
 }
 
-void LoadDefaults_Tdoor(TiXmlElement* el)
+void LoadDefaults_Tdoor(tinyxml2::XMLElement* el)
 {
     int cid=0;
     int t=0;
@@ -1642,7 +1643,7 @@ void LoadDefaults_Tdoor(TiXmlElement* el)
 }
 
 
-void LoadDefaults_ForceArrow(TiXmlElement* el)
+void LoadDefaults_ForceArrow(tinyxml2::XMLElement* el)
 {
     int cid=0;
     int t=0;
@@ -1659,10 +1660,9 @@ void LoadDefaults_ForceArrow(TiXmlElement* el)
 
 }
 
-void LoadDefaults_Earth(TiXmlElement* el)
+void LoadDefaults_Earth(tinyxml2::XMLElement* el)
 {
     int cid=0;
-    int t=0;
     if (! options::LevelColorsDisabled()) {
         el->QueryIntAttribute("color",&cid);
         if (cid) {
@@ -1675,9 +1675,9 @@ void LoadDefaults_Earth(TiXmlElement* el)
 }
 
 //===========================================================================================
-void LoadDefaults(TiXmlElement* def)
+void LoadDefaults(tinyxml2::XMLElement* def)
 {
-    TiXmlElement* pEChild= def->FirstChildElement();
+    tinyxml2::XMLElement* pEChild = def->FirstChildElement();
 
 
 
@@ -1706,7 +1706,7 @@ void LoadDefaults(TiXmlElement* def)
 // Let's load the floor decoration!
 //
 
-void LoadFloor(TiXmlElement* floor)
+void LoadFloor(tinyxml2::XMLElement* floor)
 {
     if (options::LevelColorsDisabled()) {
         return;
@@ -1714,9 +1714,8 @@ void LoadFloor(TiXmlElement* floor)
     int i,j;
     int x2=0,y2=0;
     int cid=0;
-    unsigned int c=0;
     int skn=0;
-    TiXmlElement* area= floor->FirstChildElement("area");
+    tinyxml2::XMLElement* area= floor->FirstChildElement("area");
     square* sq;
     Uint8 R,G,B;
 
@@ -1819,9 +1818,9 @@ void LevelPack::Error(const char * msg)
 //===========================================================================================
 // Let's load a level
 //
-void LoadLevel(TiXmlElement* level)
+void LoadLevel(tinyxml2::XMLElement* level)
 {
-TiXmlElement* pEChild;
+tinyxml2::XMLElement* pEChild;
 
     LastX=0;
     LastY=0;
@@ -1973,7 +1972,7 @@ int NextLine(const char* c, int i)
 }
 
 
-bool LoadKyeFormatTag(TiXmlElement* kf, KyeLevel* out)
+bool LoadKyeFormatTag(tinyxml2::XMLElement* kf, KyeLevel* out)
 {
 
     const char* tx=kf->GetText();
@@ -2026,7 +2025,7 @@ bool LoadKyeFormatTag(TiXmlElement* kf, KyeLevel* out)
     return true;
 }
 
-bool LoadKyeFormat(TiXmlElement* kf)
+bool LoadKyeFormat(tinyxml2::XMLElement* kf)
 {
     KyeLevel K(true);
     if (! LoadKyeFormatTag(kf, &K) ) {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "tinyxml/xye_tinyxml.h"
 #include "vxsdl.h"
 
 using std::string;

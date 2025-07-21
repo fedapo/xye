@@ -15,10 +15,11 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 */
 
-#include<cstdio>
-#include<cstdlib>
-#include<iostream>
-#include<fstream>
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
 
 #include "levels.h"
 #include "xyedit.h"
